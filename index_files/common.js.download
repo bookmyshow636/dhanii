@@ -1,0 +1,653 @@
+(function ($) {
+	'use strict';
+
+	var isHome = false;
+	if($('body').hasClass('home-page'))  isHome =  true;
+	
+	
+	$("select#loans").on('change', function(e) {
+		
+		if (this.value !== '') {
+			
+			var divname = this.value;
+			$('div.tab-nav__content').removeClass('active');
+			$(divname).addClass('active');
+			
+
+		}
+	});
+	
+	
+	$("#result-earning-filter").change(function() {
+		var year = $(this).find(":selected").val();
+		$('.all').hide();
+		$('.'+year).show();
+		$('#labelChanged').text( year );
+	});
+
+	//static page fixed menu
+	$('html.fixed-menu').each(function () {
+		var $window = $(window).on('scroll', function (e) {
+			if ($window.scrollTop() > 100) {
+				$('body').addClass('fixed');
+			} else {
+				$('body').removeClass('fixed');
+			}
+		});
+	});
+
+	var searchContainer = document.querySelector('.search');
+	var search_form_tigger = $('.search-form-tigger'),
+		onCloseForm = function () {
+			$("#name, #email, #mobile, #loans, #otp, #iagree, #terms1, #terms2").removeClass('error');
+			$("#name, #email, #mobile, #otp").val('');
+			$('#iagree, #terms1, #terms').prop('checked', false);
+		};
+
+	/** Search popup **/
+	$("#btn-search").click(
+		function () {
+			$('#btn-search').css('display', 'none');
+			$('#btn-close').css('display', 'block');
+			$('.js .search').addClass('position-relative');
+			$('.js .search').css('top', '0em');
+			searchContainer.classList.add('search--open');
+		});
+
+	$("#btn-close").click(function () {
+		$('#btn-close').css('display', 'none');
+		$('#btn-search').css('display', 'block');
+		$('.js .search').removeClass('position-relative');
+		$('.js .search').css('top', '6em');
+		searchContainer.classList.remove('search--open');
+	});
+
+	/** Sticky Menu http://jsfiddle.net/ianclark001/wELFH/ **/
+	var header = $(".submenu"),
+		clone = header.before(header.clone().addClass("clone"));
+
+	//$( ".clone #btn-search" ).css( "background-color", "red" ).remove();
+	//$( ".clone #btn-close" ).css( "background-color", "red" ).remove(); 	
+
+	$(window).on("scroll", function () {
+		var fromTop = $(window).scrollTop();
+		$("body").toggleClass("down", (fromTop > 400));
+
+		if(fromTop >= 100){
+			$('#return-to-top').fadeIn(200);
+		}else{
+			$('#return-to-top').hide();
+		}
+	});
+	// End
+
+	$('#return-to-top').click(function () {      // When arrow is clicked
+		$('body,html').animate({
+			scrollTop: 0                       // Scroll to top of body
+		}, 500);
+	});
+
+	/* Show the applynow button */
+	// start coding from here common page JS functions
+	window.getSearchTab = function () {
+		$(".search-form-wrapper").toggle();
+	};
+var trackLocationAPICall = true; 
+var trackUserLocation = function () {	
+			var con_code = ['AD', 'AL', 'AT', 'AX', 'BA', 'BE', 'BG', 'BY', 'CH', 'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FO', 'FR', 'GB', 'GG', 'GI', 'GR', 'HR', 'HU', 'IE', 'IM', 'IS', 'IT', 'JE', 'LI', 'LT', 'LU', 'LV', 'MC', 'MD', 'ME', 'MK', 'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'RS', 'RU', 'SE', 'SI', 'SJ', 'SK', 'SM', 'UA','UK', 'VA'];
+		
+				$.getJSON("https://api.ipify.org?format=json", function(json) {			
+					var public_ip = json.ip;
+					/*if(public_ip == '125.19.51.106'){
+						con_code.unshift('IN');
+					}*/				
+					$.getJSON("https://json.geoiplookup.io/"+public_ip, function(data) {
+						data.geoplugin_countryCode = data.country_code;	
+						trackLocationAPICall = false;			 
+						if($.inArray(data.geoplugin_countryCode,con_code) !='-1') {							
+							  $(".ind_term").css("display","none");
+							  $(".non_ind_term").css("display","block");							
+						}else{
+							  $(".ind_term").css("display","block");
+						}
+						 				
+					});		
+				});	
+		};
+		//Call trackUserLocation API for inner page
+		var trackApiFlag = true;
+		$(document).scroll(function(){			
+			if((!isHome && $('.app-queryForm').length > 0) && trackApiFlag){
+				trackUserLocation();
+				trackApiFlag = false;
+			}
+		});
+		
+
+	$('#ninedegrees').on('click', function (e) {
+		var $body = $('body');
+		if ($body.hasClass('applySlideActive')) {
+			$body.removeClass('applySlideActive');
+			onCloseForm();
+		} else {
+			if(($('.app-queryForm').length <= 0) || trackLocationAPICall){
+				trackUserLocation();
+			}
+			
+			$body.addClass('applySlideActive');
+			
+			
+		}
+	});
+
+
+
+
+	/** Forms **/
+	$('#sidenav .closebtn').on('click', function () {
+		$('.thanku-message').css('display', 'none');
+		$('#formFields').css('display', 'block');
+		$('body').removeClass('applySlideActive');
+
+		onCloseForm();
+	});
+
+	AOS.init();
+
+	$(document).ready(function () {
+		// Custom function which toggles between sticky class (is-sticky)
+		var stickyToggle = function (sticky, stickyWrapper, scrollElement) {
+			var stickyHeight = sticky.outerHeight();
+			var stickyTop = stickyWrapper.offset().top;
+			if (scrollElement.scrollTop() >= stickyTop) {
+				stickyWrapper.height(stickyHeight);
+				sticky.addClass("is-sticky");
+			}
+			else {
+				sticky.removeClass("is-sticky");
+				stickyWrapper.height('auto');
+			}
+		};
+
+		// Find all data-toggle="sticky-onscroll" elements
+		$('[data-toggle="sticky-onscroll"]').each(function () {
+			var sticky = $(this);
+			var stickyWrapper = $('<div>').addClass('sticky-wrapper'); // insert hidden element to maintain actual top offset on page
+			sticky.before(stickyWrapper);
+			sticky.addClass('sticky');
+
+			// Scroll & resize events
+			$(window).on('scroll.sticky-onscroll resize.sticky-onscroll', function () {
+				stickyToggle(sticky, stickyWrapper, $(this));
+			});
+
+			// On page load
+			stickyToggle(sticky, stickyWrapper, $(window));
+		});
+	});
+
+	// Team Members		
+	$('.member-popup-effect').click(function () {
+
+		// member
+		var current_member = $(this).find('.management-team-block').attr('id');
+
+		// Bio member		
+		var hide_info = $('.team-bio' + '  #' + current_member);
+
+		// Removing all the active classes
+		$('.management-team-desc').removeClass('show-bio');
+		$('.management-team-block').removeClass('active-member');
+		$('.management-team-block').removeClass('active');
+
+
+		var active = $(this).find('.management-team-block');
+		var close = $(hide_info).children('.close-bio');
+
+		$(hide_info).addClass('show-bio');
+		$(active).addClass('active-member');
+		$('.management-team-block').addClass('active');
+		$(close).show();
+
+	});
+
+	$('.close-bio').click(function () {
+		var hide_info = $(this).parent();
+		$(hide_info).removeClass('show-bio');
+	});
+
+	$(".generate-otp").on('click', function (e) {
+		var btn = this,
+			$form = $(this).closest('form'),
+			otp_filter_mobile = /^[0-9-+]+$/,
+			mobile = $form.find(".apply_now_mobile").val();
+
+		if (mobile == '') {
+			$form.find(".apply_now_mobile").addClass("error");
+			return false;
+		}
+		if (mobile.length < 10) {
+
+			$form.find(".apply_now_mobile").addClass("error");
+			return false;
+		}
+
+		if (!otp_filter_mobile.test(mobile)) {
+			$form.find(".apply_now_mobile").addClass("error");
+			return false;
+		}
+
+		btn.disabled = true;
+
+		$.ajax({
+			type: 'POST',
+			url: 'gen_otp.php',
+			data: {
+				mobile: $('.selectCountry').val() +mobile
+			},
+			success: function (data) {
+				console.log(data);
+				btn.disabled = false;
+				$('.generate-otp').text('Regenerate OTP');
+				if (data == 1) {
+
+					$('.apply_now_form .text-success').css('display', 'inline-block');
+					$('.apply_now_form  .err-otp').hide();
+				} else if (data == 2) {
+
+					$('.apply_now_form  .err-otp').css('display', 'inline-block');
+					//something went wrong
+				} else {
+
+					// something went wrong
+				}
+			},
+			error: function () {
+				btn.disabled = false;
+			}
+		});
+	});
+
+	$(".apply_now_submit").click(function (e) {
+		var $form = $(this).closest('form'),
+			btn = this,
+			filter_email = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+			filter_mobile = /^[0-9-+]+$/,
+			filter_name = /^[a-zA-Z ]*$/,
+			formId = $form.attr('id'),
+
+			name = $form.find(".apply_now_name").val(),
+			email = $form.find(".apply_now_email").val(),
+			loans = $form.find(".apply_now_loans").val(),
+			mobile = $form.find(".apply_now_mobile").val(),
+			otp = $form.find(".apply_now_otp").val(),
+			error = false,
+			terms1 ='',
+			terms2 = '';
+
+		btn.disabled = true;
+
+		$(".apply_now_name, .apply_now_email, .apply_now_mobile, .apply_now_loans, .apply_now_otp, .apply_now_iagree").removeClass("error");
+
+		if (name.trim() == '') {
+			$form.find(".apply_now_name").addClass("error");
+			error = true;
+		}
+
+		if (!(filter_name.test(name))) {
+			$form.find(".apply_now_name").addClass("error");
+			error = true;
+		}
+		if (email == '') {
+			$form.find(".apply_now_email").addClass("error");
+			error = true;
+		}
+
+		if (!filter_email.test(email)) {
+			$form.find(".apply_now_email").addClass("error");
+			error = true;
+		}
+
+		if(loans.trim() == ''){
+			$form.find(".apply_now_loans").addClass("error");
+			error = true;
+		}
+
+		if (mobile == '') {
+			$form.find(".apply_now_mobile").addClass("error");
+			error = true;
+		}
+
+		if (mobile.length < 10) {
+			$form.find(".apply_now_mobile").addClass("error");
+			error = true;
+		}
+
+		if (!filter_mobile.test(mobile)) {
+			$form.find(".apply_now_mobile").addClass("error");
+			error = true;
+		}
+
+		if (otp == '') {
+			$form.find(".apply_now_otp").addClass("error");
+			error = true;
+		}
+		if (!filter_mobile.test(otp)) {
+			$form.find(".apply_now_otp").addClass("error");
+			error = true;
+		}
+
+		if($('#'+formId+ ' .ind_term').is(':visible')){
+			if (!$form.find(".apply_now_iagree").is(':checked')) {
+				$form.find(".apply_now_iagree").addClass('error');
+				error = true;
+			}
+			terms1 = 2;
+		}else{
+			terms1 = $form.find("#terms1").val();			
+			if (!$form.find(".apply_now_iagree_non_ind").is(':checked')) {
+					$form.find(".apply_now_iagree_non_ind").addClass('error');
+					error = true;
+			}
+			if ($form.find(".agree_receive_alert").is(':checked')) {
+				terms2 = $form.find("#terms2").val();	
+			}
+		}
+		if (!error) {
+			$.ajax({
+				type: 'POST',
+				url: 'apply.php',
+				data: {
+					name: name,
+					email: email,
+					loans: loans,
+					mobile: $('.selectCountry').val() + mobile,
+					otp: otp,
+					terms1 : terms1,
+					terms2 : terms2
+				},
+				success: function (data) {
+					btn.disabled = false;
+
+					if (data == 1) {
+
+						$('.thanku-message').css('display', 'block');
+						$('.applynow').css('display', 'none');
+						$('.apply_now_form .text-danger').hide();
+						$('.apply_now_form .text-success').hide();
+						$('.apply_now_form  .err-otp').hide();
+						$('.generate-otp').text('Generate OTP');
+
+						$form.get(0).reset();
+					} else if (data == 2) {
+						$('.apply_now_form .text-danger').show();
+					} else {
+						//alert('something went wrong');
+					}
+				},
+				error: function (jqXHR, textStatus, error) {
+					btn.disabled = false;
+				}
+			});
+		} else {
+			btn.disabled = false;
+		}
+
+		//return false;
+	});
+
+	$('.apply_now_email').on('change', function () {
+		var filter_email = /^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+
+		if ( filter_email.test(this.value) ) {
+			$(this).removeClass('error');
+		} else {
+			$(this).addClass('error');
+		}
+	});
+
+	var getMobileFilter = function (code) {
+		if ( code === '+971' ) {
+			return /^[0-9]{9}$/;
+		} else {
+			return /^[0-9]{10}$/;
+		}
+	};
+
+	$('.apply_now_mobile')
+		.on('keydown', function (e) {
+			if (e.keyCode === 69) return false; // char 'e'
+
+			if ( (e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105) ) {
+				return this.value.length < 10;
+			}
+		})
+		.on('blur input', function () {
+			var filter_mobile = getMobileFilter( $(this).closest('.apply_now_form').find('.selectCountry').val() );
+
+			if ( filter_mobile.test(this.value) ) {
+				$(this).removeClass('error');
+			} else {
+				$(this).addClass('error');
+			}
+		});
+
+	$('.selectCountry').on('change', function (e) {
+		var $mobile = $(this).closest('.apply_now_form').find('.apply_now_mobile'),
+			filter_mobile = getMobileFilter( this.value );
+
+		if ( $.trim($mobile.val()) !== '' ) {
+			if ( filter_mobile.test($mobile.val()) ) {
+				$mobile.removeClass('error');
+			} else {
+				$mobile.addClass('error');
+			}
+		}
+	})
+	// End of form
+
+	$('.applyNow').on('click', function (e) {
+		var applyValue = $(this).attr('data-type');
+
+		$('.apply_now_form option[value="' + applyValue + '"]').attr('selected', 'selected');
+		if ( window.innerWidth < 767.98) {
+
+			$('#applyNow-mobile-btn').trigger('click');
+		}
+		else{
+
+			$('#ninedegrees').trigger('click');
+		}
+	});
+
+	$('.tab-navigator').each(function () {
+		var $container = $(this),
+			$tabs = $container.find('.tab-nav__tab'),
+			$content = $container.find('.tab-nav__content');
+
+		$tabs.on('click', function (e) {
+			e.preventDefault();
+
+			var $target = $(this.getAttribute('href'));
+
+			$tabs.add($content).removeClass('active');
+
+			$(this).add($target).addClass('active');
+		});
+	});
+
+	$('select.data-select').on('change.switchProductCompany', function (e) {
+		var $option;
+		
+		
+		if (this.value !== '') {
+			$option = $(this).find('option:selected');
+
+			$('[class*="data-select-' + $option.attr('data-link') + '-"]')
+				.removeClass('active')
+				.filter('.data-select-' + $option.attr('data-link') + '-' + $option.attr('data-num')).addClass('active');
+		} 
+	});
+	
+	
+	
+	
+	
+
+	/*----Apply now js for mobile devices starts-- */
+
+	jQuery('#applyNow-mobile-btn').on('click', function (e) {
+		var $body = jQuery('body');
+
+		$('.navbar').removeClass('active-hamburger-menu');
+		$('#navbarSupportedContent').removeClass('slideDown');
+		$('.btn-inner').removeClass('open');
+
+		if ($body.hasClass('applySlideActive-mob')) {
+			$body.removeClass('applySlideActive-mob');
+			onCloseForm();
+		} else {
+			if(($('.app-queryForm').length <= 0) || trackLocationAPICall){
+				trackUserLocation();
+			}
+			$body.addClass('applySlideActive-mob');
+		}
+	});
+
+	/** Forms **/
+	jQuery('.bottomnav-mob .closebtn').on('click', function () {
+		jQuery('.thanku-message').css('display', 'none');
+		jQuery('#formFields').css('display', 'block');
+		jQuery('body').removeClass('applySlideActive-mob');
+
+		onCloseForm();
+	});
+	// end
+
+	/*jitesh start here*/
+	if (window.innerWidth < 768) {
+		$(".parallaxBg, .parallaxBg-banner-top, .commonParallaxBg").each(function (i) {
+			var imgSrc = $(this).attr("data-mobile");
+			$(this).parallax({
+				imageSrc: imgSrc
+			});
+		});
+
+		var imgSrc = $(".home-loanHow-it-work").attr("data-mobile");
+		$(".home-loanHow-it-work").parallax({
+			imageSrc: imgSrc
+		});
+	}
+
+	
+	/*jitesh end here*/
+
+	if (window.innerWidth < 767.98) {
+		jQuery('#sidenav').hide();
+		jQuery('#ninedegrees').hide();
+		jQuery('#applyNow-mobile-btn').css('display', 'block')
+
+	}
+	/*----Apply now js for mobile devices ends------ */
+
+	/*** start hamburger js **/
+	jQuery("#menu-button").click(function () {
+		//jQuery("#applyNow-mobile-btn").toggle();
+		$('body').removeClass('applySlideActive-mob');
+		jQuery("nav.navbar").toggleClass("active-hamburger-menu");
+		jQuery(".btn-inner").toggleClass("open");
+		var a = jQuery(this).parent('nav.navbar');
+		
+		if (a.hasClass('active-hamburger-menu')) {
+			jQuery('#navbarSupportedContent').addClass('slideDown');
+			/* jQuery('#navbarSupportedContent').removeClass('slideUp'); */
+		}else {
+			//jQuery('#navbarSupportedContent').addClass('slideUp');
+			jQuery('#navbarSupportedContent').removeClass('slideDown');
+
+		};
+	});
+
+	
+	/*** End hamburger js **/
+
+	/* flip start */
+	$('.calculator-trigger[data-target], .flip-trigger[data-target]').on('click', function (e) {
+		e.preventDefault();
+
+		var $target = $(this.getAttribute('data-target'));
+
+		$target
+			.one('transitionend', function () {
+				$('html, body').animate({
+					scrollTop: $target.offset().top - $('nav:first').outerHeight()
+				});
+			})
+			.addClass('active');
+
+	});
+
+	$('.close-calculator, .close-flip').on('click', function (e) {
+		$(this).closest('.generic-calculator, .flipping-item').removeClass('active');
+	});
+	/* flip end */
+
+	 /*cookie policy code by indiabulls team*/
+    window.setCookie = function(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    };
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    var user = getCookie("username");
+
+    function checkCookie() {
+        if (user != "") {
+            // alert("Welcome again " + user);
+        } else {
+            user = $("#mymodel").show();
+        }
+    }
+
+    function setcook() {
+		//console.log('user::' + user);
+        if (user != "" && user != null) {
+            setCookie("username", user, 24);
+            $("#mymodel").hide();
+        }
+
+    }
+
+    checkCookie();
+
+    $('.cookie-btn').on('click', function() {
+        $('#mymodel').hide();
+        setcook();
+    })
+
+	/* common text color change for desktop mobile */
+	$('.commontextcolor').each(function () {
+		var $t = $(this),
+			ac = (window.innerWidth < 767.98) ? $t.attr('data-text-mobile') : $t.attr('data-text-desktop'),
+			rc = (window.innerWidth < 767.98) ? $t.attr('data-text-desktop') : $t.attr('data-text-mobile');
+
+		$t.addClass(ac)
+		.removeClass(rc);
+	});
+}.call(window, window.jQuery));

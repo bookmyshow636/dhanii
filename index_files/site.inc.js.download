@@ -1,0 +1,196 @@
+$(document).on('click','#psubmitButton',function(e){
+	if(ValidateForm()){
+		var mobNum = $('#phone_no').val();
+		$("#footer_modal_OTP").modal({
+			backdrop: 'static',
+			keyboard: false
+		}, "show");
+		$.post('/otp/otp.php?mobile=' + mobNum + '&action=generateotp', function (status) {
+			console.log("post status:", status)
+		}).done(function (t) { });		
+	}
+});
+
+function otpsend() {
+	if ($('#footerotpsend').val() == '') {
+		$('#footerotpsend').css("border-color", "#ff0000");
+		return false;
+	} else {
+		$('#footerotpsend').css("border-color", "#ced4da");
+		return true;
+	}
+}
+	
+$("#footer_send_otp").on('submit', (function (e) {
+        e.preventDefault();
+        var mobNum = $('#phone_no').val();
+        otpsend();
+        if (otpsend() == true) {
+            var otpVal = $("#footerotpsend").val();
+            $.ajax({
+                url: "/otp/otp.php?action=submitOtp&otp=" + otpVal
+            }).done(function (t) {
+                if ("success" == t) {
+                    $("#footer_otpt_submit").attr("disabled", "disabled");
+                    $.ajax({
+                        type: "POST",
+                        url: "/class/saveLead.php?action=savelead",
+                        data: $("form#frmLeadForm").serialize(),
+                        success: function(response){				
+							if(response!=""){								
+								$('#footer_modal_OTP').modal('hide')
+								$('.callback-thankyou').show();
+								$('#name').val('');
+								$('#email').val('');
+								$('#phone_no').val('');								
+							}								
+						}
+                    });
+                    $("#otp_Error").text('');
+                } else {
+                    $("#otp_Error").text('Wrong OTP Entered!');
+                }
+            });
+        }
+    }));
+
+$(".presendOtp").click(function () {
+    var mobNum = $('#phone_no').val();
+    $.ajax({
+        url: "/otp/otp.php?mobile=" + mobNum + "&action=resendOtp"
+    }).done(function (t) {
+        if ("success" == t) {
+            $("#otp_Resend").text('OTP Successfully resend!').fadeOut(3000);
+            $("#footerotpsend").val("");
+
+        }
+    });
+});
+
+$(document).ready(function(){	
+$('.callback-thankyou').hide();
+	$( '.numberOnly' ).keypress( function ( e ) {//alert($(this).val().length);
+        var unicode = e.charCode ? e.charCode : e.keyCode
+        if ( unicode != 8 ) { //if the key isn't the backspace key (which we should allow)
+			if ( unicode < 48 || unicode > 57 ){ //if not a number
+                return false //disable key press
+			}
+        }
+    });
+	
+    });
+
+function ValidateForm(){    
+	$(".err").html();
+       
+	var name = $('#name').val();       
+    var email = $('#email').val();	        
+    var mobile = $('#phone_no').val();
+	
+        if(name==''){
+            $("#name").next('.err').remove();
+            $("#name").parent().append($('<span class="err" style="color:red" >Please Enter Name </span>'));
+            return false;
+        }
+        else{
+            $(".err").hide();
+        }
+        
+        if(email==''){
+            $("#email").next('.err').remove();
+            $("#email").parent().append($('<span class="err" style="color:red" >Please Enter Email Id </span>'));   return false;	
+        }else if(email!=''){
+            var reg = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+            if (reg.test(email) == false){
+                $("#email").parent().append($('<span class="err" style="color:red" >Please Enter Valid Email Id </span>'));   return false;	
+            }else{
+                $(".err").hide();
+            }
+        }
+        else{
+            $(".err").hide();
+        }
+        
+        if (mobile == '') {
+            $("#phone_no").next('.err').remove();
+            $("#phone_no").parent().append($('<span class="err" style="color:red" >Please Enter Mobile Number </span>'));   return false;	
+        }else if(mobile != ''){
+            if (/^\d{10}$/.test(mobile)) {
+                $(".err").hide();
+                
+            }else{
+                $("#phone_no").parent().append($('<span class="err" style="color:red" >Please Enter Valid Mobile Number </span>'));   return false;
+            }
+        }
+        
+        if((name!='')&&(email!='')&&(mobile!='')){
+            $(".err").hide();
+            $("#psubmitButton").attr('disabled', 'disabled');
+            //$("#frmLeadForm").submit();
+			return true;
+        }  
+		
+}
+	
+ function onlyAlphapace(varID){
+  $('#'+varID).val($('#'+varID).val().replace(/[^a-zA-Z' ]+( [A-Za-z' ]+)*$/g, function(str) {  return ''; }));
+}
+
+function countVal(txtVal){
+	
+	if(txtVal.length >= 10){
+		$('img#imgMobVerify').attr('src','images/verify-active.png');
+	}else{
+		$('img#imgMobVerify').attr('src','images/verify.jpg');
+		console.log('no');
+	}
+}
+
+function Comma(nStr) {
+	
+	   if(nStr!='')
+	   {
+		   if(parseInt(nStr))
+		   {
+				 //NumToWord1(nStr,showdiv);
+				nStr=nStr.replace(/\,/g,''); 
+				nStr=parseInt(nStr,10);
+				nStr += '';
+				 x = nStr.split('.');
+				 x1 = x[0];
+				 x2 = x.length > 1 ? '.' + x[1] : '';
+				 var rgx = /(\d+)(\d{3})/;
+				 var z = 0;
+				 var len = String(x1).length;
+				 var num = parseInt((len/2)-1);
+				  while (rgx.test(x1))
+				  {
+					if(z > 0)
+					{
+					  x1 = x1.replace(rgx, '$1' + ',' + '$2');
+					}
+					else
+					{
+					  x1 = x1.replace(rgx, '$1' + ',' + '$2');
+					  rgx = /(\d+)(\d{2})/;
+					}
+					z++;
+					num--;
+					if(num == 0)
+					{
+					  break;
+					}
+				  }
+				 return x1 + x2;
+			}
+			else
+			{
+				return '';
+			}
+	   }
+	   else
+	   {
+			return '';
+	   }
+}
+  

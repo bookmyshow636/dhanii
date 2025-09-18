@@ -1,0 +1,41 @@
+// JavaScript Document
+
+(function ($) {
+    'use strict';
+
+    $('.main-content').each(function () {
+        if ( window.innerWidth < 768 ) return false;
+
+        var $howItWorks = $(this),
+            $clone = $howItWorks.clone(),
+            $window;
+
+        $clone
+            .css({
+                position: 'fixed',
+                top: $('.submenu:first').outerHeight(),
+                left: 0,
+                width: '100%',
+                zIndex: -1,
+                opacity: 0
+            })
+            .appendTo($('body'))
+
+        this.style.opacity = 0;
+
+        $window = $(window).on('scroll', function () {
+            var wTop = $window.scrollTop(),
+                offsetTop = $howItWorks.offset().top;
+
+            if ( 
+                (wTop >= offsetTop - window.innerHeight) &&
+                (wTop <= offsetTop + $howItWorks.outerHeight())
+            ) {
+                $clone.css('opacity', 1);
+
+            } else {
+                $clone.css('opacity', 0);
+            }
+        });
+    });
+}.call(window, window.jQuery));

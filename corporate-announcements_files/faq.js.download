@@ -1,0 +1,14 @@
+// JavaScript Document
+(function ($) {
+    'use strict';
+
+	$('.custom-select').select2({
+		width: 'resolve'		
+	}).on('select2:select', function (e) {
+		var data = e.params.data;
+		console.log(data.id);
+
+		$('.faq-block').hide();
+		$('#faq'+data.id).show();
+	});
+}.call(window, window.jQuery));

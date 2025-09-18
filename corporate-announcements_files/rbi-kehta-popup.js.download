@@ -1,0 +1,19 @@
+var modal = document.getElementById("rbiKehtaModal");
+var btn = document.getElementById("myBtn");
+var oK = document.getElementById("rbiKehtaOk");
+var span = document.getElementsByClassName("rbi-closeIcon")[0];
+btn.onclick = function () {
+  modal.style.display = "flex";
+};
+span.onclick = function () {
+  modal.style.display = "none";
+};
+oK.onclick = function () {
+  document.location =
+    "https://www.rbi.org.in/commonperson/English/Scripts/rbikehtahai.aspx";
+};
+window.onclick = function (event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
